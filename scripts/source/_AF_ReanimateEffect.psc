@@ -16,12 +16,10 @@ int             Property SpellLevel = 0 Auto
 ; Spells and Effects
 Spell           Property ReanimationSpell Auto
 {The actual spell used to reanimate the minion.}
-MagicEffect     Property RecentlyDeceasedEffect Auto
-{The effect that signals that a corpse is fresh and therefore more difficult to exert influence over.}
-Spell           Property RecentlyDeceasedSpell Auto
-{The spell that applies the recently deceased effect, see above.}
+Faction         Property RecentlyDeceasedFaction Auto
+{The faction that signals that a corpse is fresh and therefore more difficult to exert influence over.}
 Spell           Property RecentlyDeceasedDebuffSpell Auto
-{The debuff applied to the player when they reanimate a recently deceased corpse.}
+{The debuff applied to the caster when they reanimate a recently deceased corpse.}
 
 ; Messages and Menus
 Message         Property MessageDebuffWarning Auto
@@ -81,7 +79,7 @@ EndFunction
 Function HandleResurrection(Actor caster, Actor target, int choice)
     {Handles the actual resurrection process (level checking, etc.)}
     bool isPlayer = choice != -1
-    bool isFresh = target.HasMagicEffect(RecentlyDeceasedEffect)
+    bool isFresh = target.IsInFaction(RecentlyDeceasedFaction)
 
     ; Check compatibility lists
     If(ListScriptedReanimations.Find(target) != -1 || (!isPlayer && ListScriptedReanimationsNPCOnly.Find(target) != -1))
@@ -123,19 +121,13 @@ Function HandleResurrection(Actor caster, Actor target, int choice)
         ; Higher difficulty levels make it harder to resurrect, lower ones make it easier
         ; Easy = 0, Normal = 1, Hard = 2
         successVar += (SettingDifficulty.GetValue() - 1) * 10
-
-        ; Fresh corpses are much more difficult to reanimate
-        If(isFresh)
-            ; The difficulty increase is player only, but the debuff gets applied to anyone
-            successVar += 10
-        EndIf
     EndIf
 
     ; Check if we managed to overcome the bias
     If(successVar <= 0)
         DoResurrection(caster, target, choice)
         If(isFresh)
-            target.RemoveSpell(RecentlyDeceasedSpell)
+            target.RemoveFromFaction(RecentlyDeceasedFaction)
             RecentlyDeceasedDebuffSpell.Cast(target, caster)
             If(isPlayer)
                 MessageDebuffApplied.Show()

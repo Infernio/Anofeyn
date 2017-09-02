@@ -1,8 +1,8 @@
 ScriptName _AF_ActorDeathScript Extends Quest
 {Tracks actor deaths caused by the player and acts on them.}
 
-Spell       Property RecentlyDeceasedSpell Auto
-{The spell that should be applied to recently deceased corpses.}
+Faction     Property RecentlyDeceased Auto
+{The faction that recently deceased corpses are added to.}
 Keyword     Property ActorTypeGhost Auto
 {The ghost type keyword.}
 LeveledItem Property AnimalBones Auto
@@ -18,7 +18,7 @@ Event OnStoryKillActor(ObjectReference akVictim, ObjectReference akKiller, Locat
     Actor victim = akVictim as Actor
     If(victim && LeavesCorpse(victim))
         ; Mark the corpse as recently deceased and add loot to it
-        victim.AddSpell(RecentlyDeceasedSpell, false)
+        victim.AddToFaction(RecentlyDeceased)
         AddLoot(victim)
     EndIf
 
@@ -31,5 +31,5 @@ bool Function LeavesCorpse(Actor victim)
 EndFunction
 
 Function AddLoot(Actor victim)
-
+    ; TODO Loot generation goes here
 EndFunction
