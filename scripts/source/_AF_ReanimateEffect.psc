@@ -147,14 +147,18 @@ int Function GetSoulGemFactor(int choice, bool isPlayer)
     ElseIf(choice == 6)
         ; Petty - Sizable Debuff
         return -10
-    Else
+    ElseIf(choice == 7)
         ; None - Massive Debuff
         return -20
+    Else
+        ; ???
+        Debug.Trace("[Anofeyn] Unknown soul gem choice")
+        return 0
     EndIf
 EndFunction
 
 Function DoResurrection(Actor caster, Actor target, int choice)
-    ; Actually reanimate the target
+    {Executes the actual resurrection of the target, removing a soul gem if the player chose to do so.}
     If(choice != -1)
         RemoveSoulGem(choice)
     EndIf
@@ -162,6 +166,7 @@ Function DoResurrection(Actor caster, Actor target, int choice)
 EndFunction
 
 Function RemoveSoulGem(int choice)
+    {Removes the selected soul gem from the player's inventory.}
     If(choice == 1)
         PlayerRef.RemoveItem(SoulGemBlack)
     ElseIf(choice == 2)

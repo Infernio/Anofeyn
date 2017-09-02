@@ -1,6 +1,7 @@
 ScriptName _AF_Compatibility Extends ReferenceAlias
 {The main compatibility script used to handle compatibility with other mods.}
 
+; PROPERTIES
 Actor       Property PlayerRef Auto
 {The player reference.}
 
@@ -17,6 +18,10 @@ Message     Property MessageSSIncompatible Auto
 {The warning shown to the player when Smart Souls has been detected.}
 Message     Property MessageTSSIncompatible Auto
 {The warning shown to the player when The Soul Saver has been detected.}
+Message     Property MessageAnofeynMissing Auto
+{The warning shown to the player when Anofeyn.esp could not be found.}
+Message     Property MessageVersionMismatch Auto
+{The warning shown to the player when Anofeyn's version does not match this script's version.}
 
 ; Internals
 bool        Property IsDone Auto Hidden
@@ -40,9 +45,11 @@ Event OnUpdate()
 EndEvent
 
 Event OnPlayerLoadGame()
-    ; When loading a game, make sure SKSE is still available
-    Debug.Trace("[Anofeyn] Game load detected - checking SKSE status.")
+    ; When loading a game, run some basic checks
+    Debug.Trace("[Anofeyn] Game load detected - running basic checks.")
+    CheckAnofeynVersion()
     CheckSKSE()
+    Debug.Trace("[Anofeyn] Game load checks completed")
 EndEvent
 
 Function RunAllChecks()
@@ -50,6 +57,9 @@ Function RunAllChecks()
     IsDone = false
     Debug.Trace("[Anofeyn] Starting compatibility checks - errors are normal and expected.")
     MessageChecksStarted.Show()
+
+    ; Make sure that anofeyn's version matches and that we're not merged
+    CheckAnofeynVersion()
 
     ; Check if SKSE is available
     CheckSKSE()
@@ -70,6 +80,28 @@ Function RunAllChecks()
     MessageChecksFinished.Show()
     Debug.Trace("[Anofeyn] Compatibility checks done.")
     IsDone = true
+EndFunction
+
+Function CheckAnofeynVersion()
+    {Makes sure that Anofeyn's version matches this script's version and that it has NOT been merged into a different esp.}
+    GlobalVariable AnofeynVersion = Game.GetFormFromFile(0x042936, "Anofeyn.esp") as GlobalVariable
+    If(!AnofeynVersion)
+        ; If the warning property was filled (a newer version might have changed its name), use that
+        If(MessageAnofeynMissing)
+            MessageAnofeynMissing.Show()
+        Else
+            ; Otherwise, we'll have to use this method
+            Debug.MessageBox("Anofeyn.esp could not be found. This is a SEVERE error - Anofeyn will not able to continue running.\n\nLikely reasons are:\n - An incomplete, corrupt or outdated installation of Anofeyn.\n - Anofeyn has been merged into a different esp file.\n\nPlease make sure that you have the latest version of Anofeyn installed and that it is NOT merged into a different esp before reporting this issue.")
+        EndIf
+    ElseIf(AnofeynVersion.GetValue() != 1) ; NOTE: This number has to be updated every time the _AF_Version global variable is changed
+        ; If the warning property was filled (a newer version might have changed its name), use that
+        If(MessageVersionMismatch)
+            MessageVersionMismatch.Show()
+        Else
+            ; Otherwise, we'll have to use this method
+            Debug.MessageBox("The installed version of Anofeyn does not match the version of Anofeyn's scripts.\n\nThis likely indicates an incomplete or corrupt installation. Please check if a new version is available and then uninstall and reinstall Anofeyn completely.")
+        EndIf
+    EndIf
 EndFunction
 
 Function CheckSKSE()

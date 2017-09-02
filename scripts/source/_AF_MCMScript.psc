@@ -61,7 +61,7 @@ Event OnPageReset(string page)
             ; General Page
             SetCursorFillMode(LEFT_TO_RIGHT)
 
-            difficultyID = AddMenuOption("Difficulty", GetDifficultyDesc(SettingDifficulty.GetValue() as int))
+            difficultyID = AddMenuOption("$AFDifficulty", GetDifficultyDesc(SettingDifficulty.GetValue() as int))
         ElseIf(page == PAGE_ASGM)
             ; ASGM Page
             SetCursorFillMode(LEFT_TO_RIGHT)
@@ -74,6 +74,11 @@ Event OnPageReset(string page)
             silenceFailID = AddToggleOption("$ASGSilenceFailOption", SettingSilenceFailure.GetValue() == 1)
         ElseIf(page == PAGE_COMPATIBILITY)
             ; Compatibility Page
+            SetCursorFillMode(TOP_TO_BOTTOM)
+
+            AddHeaderOption("Compatible Mods")
+            AddEmptyOption()
+            AddHeaderOption("Incompatible Mods")
         EndIf
     EndIf
 EndEvent
@@ -126,7 +131,7 @@ EndEvent
 Event OnOptionHighlight(int option)
     ; General Page
     If(option == difficultyID)
-        SetInfoText("Controls the difficulty of reanimation.")
+        SetInfoText("$AFDifficultyInfo")
 
     ; ASGM Page
     ElseIf(option == azuraOnlyFullID)
@@ -143,12 +148,12 @@ EndEvent
 string Function GetDifficultyDesc(int difficultyVal)
     {Gets a human-readable description for the specified difficulty.}
     If(difficultyVal == 0)
-        return "Easy"
+        return "$AFDifficultyEasy"
     ElseIf(difficultyVal == 1)
-        return "Medium"
+        return "$AFDifficultyMedium"
     ElseIf(difficultyVal == 2)
-        return "Hard "
+        return "$AFDifficultyHard"
     Else
-        return "Unknown"
+        return "Error"
     EndIf
 EndFunction

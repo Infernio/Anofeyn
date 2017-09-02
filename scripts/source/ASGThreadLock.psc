@@ -3,7 +3,7 @@ Scriptname ASGThreadLock extends Quest
 Needed because ASGM removes soul gems from trapper's
 inventory while running, so we need to be certain those
 gems are put back before we allow another Soul Trap
-occurs.}
+to occur.}
 
 ; An array used to track all active trappers.
 Actor[] trappers
