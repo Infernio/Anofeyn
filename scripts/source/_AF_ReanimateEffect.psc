@@ -7,6 +7,12 @@ Actor           Property PlayerRef Auto
 GlobalVariable  Property SettingDifficulty Auto
 {The global variable that controls the difficulty setting.}
 
+; Balance
+bool            Property IsScroll = false Auto
+{Whether or not this reanimation effect comes from a scroll.}
+int             Property SpellLevel = 0 Auto
+{The 'level' of the spell (i.e. novice = 0, apprentice = 1, etc.).}
+
 ; Spells and Effects
 Spell           Property ReanimationSpell Auto
 {The actual spell used to reanimate the minion.}
@@ -18,6 +24,10 @@ Spell           Property RecentlyDeceasedDebuffSpell Auto
 {The debuff applied to the player when they reanimate a recently deceased corpse.}
 
 ; Messages and Menus
+Message         Property MessageDebuffWarning Auto
+{The message shown to the player when they attempt to resurrect a recently deceased body.}
+Message         Property MessageDebuffApplied Auto
+{The message shown to the player when they get the 'recently deceased' debuff applied.}
 Message         Property MessageUnsuccessfulResurrection Auto
 {The message shown to the player when the resurrection fails.}
 Message         Property ReanimationMenu Auto
@@ -80,6 +90,14 @@ Function HandleResurrection(Actor caster, Actor target, int choice)
         return
     EndIf
 
+    ; Show the player a warning if they attempt to reanimate a recently deceased body
+    If(isPlayer && isFresh)
+        If(MessageDebuffWarning.Show() == 1)
+            ; Player chose to cancel
+            return
+        EndIf
+    EndIf
+
     ; The variable used to track whether or not this resurrection will succeed
     ; Biased against the caster by default
     float successVar = 10
@@ -89,12 +107,16 @@ Function HandleResurrection(Actor caster, Actor target, int choice)
     successVar += target.GetLevel() - caster.GetLevel()
 
     ; Add in Conjuration skill
-    ; High Conjuration skill makes it easier to bridge that gap
+    ; High Conjuration skill makes it easier to bridge the gap
     successVar -= caster.GetActorValue("Conjuration") / 10
 
     ; Add in the soul gem factor
-    ; Better Soul Gems make it easier to resurrect
+    ; Better soul gems make it easier to resurrect
     successVar -= GetSoulGemFactor(choice, isPlayer)
+
+    ; Add in the spell level
+    ; Higher level spells make resurrection easier
+    successVar -= SpellLevel * 5
 
     If(isPlayer)
         ; Add in the difficulty factor
@@ -104,7 +126,7 @@ Function HandleResurrection(Actor caster, Actor target, int choice)
 
         ; Fresh corpses are much more difficult to reanimate
         If(isFresh)
-            ; TODO Should this be player only?
+            ; The difficulty increase is player only, but the debuff gets applied to anyone
             successVar += 10
         EndIf
     EndIf
@@ -112,9 +134,12 @@ Function HandleResurrection(Actor caster, Actor target, int choice)
     ; Check if we managed to overcome the bias
     If(successVar <= 0)
         DoResurrection(caster, target, choice)
-        If(isPlayer && isFresh)
+        If(isFresh)
             target.RemoveSpell(RecentlyDeceasedSpell)
-            PlayerRef.AddSpell(RecentlyDeceasedDebuffSpell)
+            RecentlyDeceasedDebuffSpell.Cast(target, caster)
+            If(isPlayer)
+                MessageDebuffApplied.Show()
+            EndIf
         EndIf
     Else
         If(isPlayer)
@@ -124,19 +149,21 @@ Function HandleResurrection(Actor caster, Actor target, int choice)
 EndFunction
 
 int Function GetSoulGemFactor(int choice, bool isPlayer)
-    If(!isPlayer)
+    {Calculates the soul gem factor that will contribute to the resurrection.}
+    If(IsScroll)
+        ; Scrolls always give the highest chance
+        return 25
+    ElseIf(!isPlayer)
         ; Assume enemies always use Greater Soul Gems
         return 10
-    EndIf
-
-    If(choice == 1)
-        ; Black - Very Significant Bonus
+    ElseIf(choice == 1)
+        ; Black - Massive Bonus
         return 25
     ElseIf(choice == 2)
         ; Grand - Significant Bonus
         return 20
     ElseIf(choice == 3)
-        ; Greater - Decent Bonus
+        ; Greater - Sizable Bonus
         return 10
     ElseIf(choice == 4)
         ; Common - No Bonus
@@ -148,7 +175,7 @@ int Function GetSoulGemFactor(int choice, bool isPlayer)
         ; Petty - Sizable Debuff
         return -10
     ElseIf(choice == 7)
-        ; None - Massive Debuff
+        ; None - Significant Debuff
         return -20
     Else
         ; ???
