@@ -1,0 +1,8 @@
+Anofeyn - Another Necromancy Overhaul for Egocentric Necromancers
+
+Basic Idea: Reanimating needs souls, but is more powerful (based on the power of the soul used)
+How to get souls: Soul gems, capturing souls that float around, visiting the soul cairn
+About the Soul Cairn: Perk Tree there? Based on activators floating around in the air (Campfire-like)
+Also: Optional preparation step (needs some resources and time, can't be done in combat) for much better results
+Also: Some new spells
+    - cursing debuff -> instant kill on low health, reanimates as powerful skeleton (use https://www.nexusmods.com/skyrim/mods/28957/)
