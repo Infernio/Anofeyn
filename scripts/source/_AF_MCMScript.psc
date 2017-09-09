@@ -113,11 +113,12 @@ Event OnPageReset(string page)
     EndIf
 EndEvent
 
-int Function AddModToggle(string modName, bool loaded, bool enabled)
+int Function AddModToggle(string name, bool loaded, bool enabled)
+    {Adds a toggle for the specified mod.}
     If(loaded)
-        return AddToggleOption(modName, enabled)
+        return AddToggleOption(name, enabled)
     Else
-        return AddToggleOption(modName, false, OPTION_FLAG_DISABLED)
+        return AddToggleOption(name, false, OPTION_FLAG_DISABLED)
     EndIf
 EndFunction
 

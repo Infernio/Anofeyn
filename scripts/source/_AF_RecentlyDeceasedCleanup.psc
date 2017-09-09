@@ -1,12 +1,9 @@
 ScriptName _AF_RecentlyDeceasedCleanup Extends ActiveMagicEffect
+{A script used to remove 'recently deceased' corpses from the faction in order to prevent bloat.}
 
 Faction Property RecentlyDeceased Auto
-
-Event OnEffectStart(Actor akTarget, Actor akCaster)
-    Debug.MessageBox("Yay, starting magic effect")
-EndEvent
+{The 'recently deceased' faction.}
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
-    Debug.MessageBox("Removing from faction")
     akTarget.RemoveFromFaction(RecentlyDeceased)
 EndEvent
