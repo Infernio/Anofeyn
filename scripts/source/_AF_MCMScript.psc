@@ -1,48 +1,94 @@
 ScriptName _AF_MCMScript Extends SKI_ConfigBase
 {The Anofeyn SkyUI Mod Configuration Menu.}
 
+import _AF_Utils
+
 ; Anofeyn - Properties
-_AF_Compatibility   Property CompatibilityScript Auto
+_AF_Compatibility       Property CompatibilityScript Auto
 {The Anofeyn compatibility script.}
+_AF_CommonProblemWizard Property ProblemWizard Auto
+{The Anofeyn problem wizard.}
 
 ; General - Properties
-GlobalVariable      Property SettingDifficulty Auto
+GlobalVariable          Property SettingDifficulty Auto
 {The global variable that controls the difficulty setting.}
 
 ; General - ID Variables
-int difficultyID = 0
+; The SkyUI ID of the Difficulty slider.
+int difficultyID
+; The SkyUI ID of the Problem Wizard toggle.
+int runProblemWizardID
+
+; General - Storage Variables
+bool runProblemWizard = false
 
 ; ASGM - Properties
-GlobalVariable      Property SettingSilenceSuccess Auto
+GlobalVariable          Property SettingSilenceSuccess Auto
 {The global variable that controls whether or not to print messages on capture success.}
-GlobalVariable      Property SettingSilenceFailure Auto
+GlobalVariable          Property SettingSilenceFailure Auto
 {The global variable that controls whether or not to print messages on capture failure.}
-GlobalVariable      Property SettingAzuraOnlyFull Auto
+GlobalVariable          Property SettingAzuraOnlyFull Auto
 {The global variable that controls whether or not Azura's Star / The Black Star may house smaller souls.}
-GlobalVariable      Property SettingOnlyBlackSouls Auto
+GlobalVariable          Property SettingOnlyBlackSouls Auto
 {The global variable that controls whether or not black soul gems may only house black souls.}
 
 ; ASGM - ID Variables
 ; The SkyUI ID of the 'Azura full only' option.
-int azuraOnlyFullID = 0
+int azuraOnlyFullID
 ; The SkyUI ID of the 'black souls only' option.
-int onlyBlackID = 0
+int onlyBlackID
 ; The SkyUI ID of the 'silence success' option.
-int silenceSuccessID = 0
+int silenceSuccessID
 ; The SkyUI ID of the 'silence failure' option.
-int silenceFailID = 0
+int silenceFailID
 
 ; Compatibility - ID Variables
 ; The SkyUI ID of the Scarcity toggle
-int scarcityID = 0
+int scarcityID
 ; The SkyUI ID of the ASG 'toggle'
-int asgID = 0
+int asgID
 ; The SkyUI ID of the ASGM 'toggle'
-int asgmID = 0
+int asgmID
 ; The SkyUI ID of the Smart Souls 'toggle'
-int smartSoulsID = 0
+int smartSoulsID
 ; The SkyUI ID of the TSS 'toggle'
-int tssID = 0
+int tssID
+
+; Reports - ID Variables
+; Stores the SkyUI IDs of the clickable error messages.
+int[] errorClickables
+; Stores the SkyUI IDs of the clickable warnings.
+int[] warningClickables
+; Stores the SkyUI IDs of the clickable notices.
+int[] noticeClickables
+
+; Reports - Storage Variables
+; The errors that were recorded by the wizard.
+string[] errors
+; The mods corresponding to the errors that were recorded by the wizard.
+string[] errorMods
+; The detailed error messages that were recorded by the wizard.
+string[] errorDetails
+; The total number of reported errors.
+int numErrors
+; The warnings that were recorded by the wizard.
+string[] warnings
+; The warnings corresponding to the errors that were recorded by the wizard.
+string[] warningMods
+; The detailed warnings that were recorded by the wizard.
+string[] warningDetails
+; The total number of reported warnings.
+int numWarnings
+; The notices that were recorded by the wizard.
+string[] notices
+; The notices corresponding to the errors that were recorded by the wizard.
+string[] noticeMods
+; The detailed notices that were recorded by the wizard.
+string[] noticeDetails
+; The total number of reported notices.
+int numNotices
+; Whether or not a report is available for viewing.
+bool hasReport
 
 ; Constants
 ; The unique (untranslated) name of the 'General' page
@@ -51,6 +97,8 @@ string PAGE_GENERAL = "$AFConfigPageGeneral"
 string PAGE_ASGM = "$AFConfigPageSoulGems"
 ; The unique (untranslated) name of the 'Compatibility' page
 string PAGE_COMPATIBILITY = "$AFConfigPageCompatibility"
+; The unique (untranslated) name of the 'Reports' page
+string PAGE_REPORTS = "$AFConfigPageReports"
 
 int Function GetVersion()
     {Gets the version of this MCM Script.}
@@ -58,10 +106,13 @@ int Function GetVersion()
 EndFunction
 
 Event OnConfigInit()
-    Pages = new string[3]
+    Pages = new string[4]
     Pages[0] = PAGE_GENERAL
     Pages[1] = PAGE_ASGM
     Pages[2] = PAGE_COMPATIBILITY
+    Pages[3] = PAGE_REPORTS
+
+    ResetReport()
 EndEvent
 
 Event OnPageReset(string page)
@@ -73,13 +124,33 @@ Event OnPageReset(string page)
             ; General Page
             SetCursorFillMode(LEFT_TO_RIGHT)
 
+            ; Settings
+            AddHeaderOption("$AFSettings")
+            AddEmptyOption()
+
             difficultyID = AddMenuOption("$AFDifficulty", GetDifficultyDesc(SettingDifficulty.GetValue() as int))
+            AddEmptyOption() ; Remove me for the next option
+
+            ; One empty line
+            AddEmptyOption()
+            AddEmptyOption()
+
+            ; Troubleshooting
+            AddHeaderOption("$AFTroubleshooting")
+            AddEmptyOption()
+
+            If(!runProblemWizard)
+                runProblemWizardID = AddTextOption("$AFProblemWizard", "$AFClickToRun")
+            Else
+                runProblemWizardID = AddTextOption("$AFProblemWizard", "$AFExitMenuToRun", OPTION_FLAG_DISABLED)
+            EndIf
         ElseIf(page == PAGE_ASGM)
             ; ASGM Page
             SetCursorFillMode(LEFT_TO_RIGHT)
 
             AddHeaderOption("$ASGOptionsHeader")
             AddEmptyOption()
+
             azuraOnlyFullID = AddToggleOption("$ASGFilledOption", SettingAzuraOnlyFull.GetValue() == 1)
             onlyBlackID = AddToggleOption("$ASGBlackOption", SettingOnlyBlackSouls.GetValue() == 1)
             silenceSuccessID = AddToggleOption("$ASGSilenceSuccessOption", SettingSilenceSuccess.GetValue() == 1)
@@ -92,7 +163,6 @@ Event OnPageReset(string page)
             AddHeaderOption("$AFCompatibleMods")
             AddEmptyOption()
 
-            ; Scarcity
             scarcityID = AddModToggle("Scarcity", CompatibilityScript.ScarcityLoaded, CompatibilityScript.GetScarcityCompat())
             AddEmptyOption() ; Remove me for the next mod
 
@@ -104,11 +174,78 @@ Event OnPageReset(string page)
             AddHeaderOption("$AFIncompatibleMods")
             AddEmptyOption()
 
-            ; Soul Gem Fixes
             asgID = AddModToggle("Acquisitive Soul Gems", CompatibilityScript.ASGLoaded, CompatibilityScript.ASGLoaded)
             asgmID = AddModToggle("Acquisitive Soul Gems Multithreaded", CompatibilityScript.ASGMLoaded, CompatibilityScript.ASGMLoaded)
             smartSoulsID = AddModToggle("Smart Souls", CompatibilityScript.SmartSoulsLoaded, CompatibilityScript.SmartSoulsLoaded)
             tssID = AddModToggle("The Soul Saver", CompatibilityScript.TSSLoaded, CompatibilityScript.TSSLoaded)
+        ElseIf(page == PAGE_REPORTS)
+            ; Reports Page
+            SetCursorFillMode(LEFT_TO_RIGHT)
+
+            ; Check if we even have a report to show
+            If(!hasReport)
+                AddTextOption("$AFNoReports", "", OPTION_FLAG_DISABLED)
+            Else
+                int i = 0
+
+                ; Errors
+                AddHeaderOption("$AFErrors")
+                AddEmptyOption()
+
+                ; Check if we have errors to show
+                If(numErrors <= 0)
+                    AddTextOption("$AFNoErrorsFound", "", OPTION_FLAG_DISABLED)
+                Else
+                    noticeClickables = Utility.CreateIntArray(numErrors)
+                    While(i < numErrors)
+                        AddTextOption(errorMods[i], "")
+                        errorClickables[i] = AddTextOption("", errors[i])
+                        i += 1
+                    EndWhile
+                EndIf
+
+                ; One empty line
+                AddEmptyOption()
+                AddEmptyOption()
+
+                ; Warnings
+                AddHeaderOption("$AFWarnings")
+                AddEmptyOption()
+
+                ; Check if we have warnings to show
+                If(numWarnings <= 0)
+                    AddTextOption("$AFNoWarningsFound", "", OPTION_FLAG_DISABLED)
+                Else
+                    i = 0
+                    warningClickables = Utility.CreateIntArray(numWarnings)
+                    While(i < numWarnings)
+                        AddTextOption(warningMods[i], "")
+                        errorClickables[i] = AddTextOption("", warnings[i])
+                        i += 1
+                    EndWhile
+                EndIf
+
+                ; One empty line
+                AddEmptyOption()
+                AddEmptyOption()
+
+                ; Notices
+                AddHeaderOption("$AFNotices")
+                AddEmptyOption()
+
+                ; Check if we have notices to show
+                If(numNotices <= 0)
+                    AddTextOption("$AFNoNoticesFound", "", OPTION_FLAG_DISABLED)
+                Else
+                    i = 0
+                    noticeClickables = Utility.CreateIntArray(numNotices)
+                    While(i < numNotices)
+                        AddTextOption(noticeMods[i], "")
+                        errorClickables[i] = AddTextOption("", notices[i])
+                        i += 1
+                    EndWhile
+                EndIf
+            EndIf
         EndIf
     EndIf
 EndEvent
@@ -137,8 +274,14 @@ Event OnOptionMenuOpen(int option)
 EndEvent
 
 Event OnOptionSelect(int option)
+    ; General Page
+    If(option == runProblemWizardID)
+        runProblemWizard = true
+        SetTextOptionValue(option, "$AFExitMenuToRun", true)
+        SetOptionFlags(option, OPTION_FLAG_DISABLED)
+
     ; ASGM Page
-    If(option == azuraOnlyFullID)
+    ElseIf(option == azuraOnlyFullID)
         bool newValue = SettingAzuraOnlyFull.GetValue() == 0
         SettingAzuraOnlyFull.SetValue(newValue as float)
 		SetToggleOptionValue(option, newValue)
@@ -163,6 +306,38 @@ Event OnOptionSelect(int option)
         bool newValue = !CompatibilityScript.GetScarcityCompat()
         CompatibilityScript.SetScarcityCompat(newValue)
         SetToggleOptionValue(option, newValue)
+
+    ; Reports Page
+    Else
+        ; Errors
+        int i = 0
+        While(i < numErrors)
+            If(option == errorClickables[i])
+                Debug.MessageBox(errorDetails[i])
+                return
+            EndIf
+            i += 1
+        EndWhile
+
+        ; Warnings
+        i = 0
+        While(i < numWarnings)
+            If(option == warningClickables[i])
+                Debug.MessageBox(warningDetails[i])
+                return
+            EndIf
+            i += 1
+        EndWhile
+
+        ; Notices
+        i = 0
+        While(i < numNotices)
+            If(option == noticeClickables[i])
+                Debug.MessageBox(noticeDetails[i])
+                return
+            EndIf
+            i += 1
+        EndWhile
     EndIf
 EndEvent
 
@@ -199,6 +374,40 @@ Event OnOptionHighlight(int option)
         SetInfoText("$AFCompatInfoSmartSouls")
     ElseIf(option == tssID)
         SetInfoText("$AFCompatInfoTSS")
+    ElseIf(option == runProblemWizardID)
+        SetInfoText("$AFProblemWizardInfo")
+
+    ; Reports Page
+    Else
+        ; Errors
+        int i = 0
+        While(i < errorClickables.length)
+            If(option == errorClickables[i])
+                SetInfoText("$AFClickErrorInfo")
+                return
+            EndIf
+            i += 1
+        EndWhile
+
+        ; Warnings
+        i = 0
+        While(i < warningClickables.length)
+            If(option == warningClickables[i])
+                SetInfoText("$AFClickWarningInfo")
+                return
+            EndIf
+            i += 1
+        EndWhile
+
+        ; Notices
+        i = 0
+        While(i < noticeClickables.length)
+            If(option == noticeClickables[i])
+                SetInfoText("$AFClickNoticeInfo")
+                return
+            EndIf
+            i += 1
+        EndWhile
     EndIf
 EndEvent
 
@@ -213,4 +422,76 @@ string Function GetDifficultyDesc(int difficultyVal)
     Else
         return "$AFError"
     EndIf
+EndFunction
+
+Event OnConfigClose()
+    If(runProblemWizard)
+        runProblemWizard = false
+        ProblemWizard.RunWizard()
+    EndIf
+EndEvent
+
+Function ResetReport()
+    errors = new string[8]
+    errorMods = new string[8]
+    errorDetails = new string[8]
+    numErrors = 0
+    warnings = new string[8]
+    warningMods = new string[8]
+    warningDetails = new string[8]
+    numWarnings = 0
+    notices = new string[8]
+    noticeMods = new string[8]
+    noticeDetails = new string[8]
+    numNotices = 0
+    hasReport = false
+EndFunction
+
+Function FinishReport()
+    hasReport = true
+EndFunction
+
+Function AddToReport(string name, string category, string detailedError, int level)
+    If(level == LevelError())
+        errorMods[numErrors] = name
+        errors[numErrors] = category
+        errorDetails[numErrors] = detailedError
+        numErrors += 1
+        If(numErrors >= errors.length)
+            errorMods = ExpandStringArray(errorMods, 8)
+            errors = ExpandStringArray(errors, 8)
+            errorDetails = ExpandStringArray(errorDetails, 8)
+        EndIf
+    ElseIf(level == LevelWarning())
+        warningMods[numErrors] = name
+        warnings[numErrors] = category
+        warningDetails[numErrors] = detailedError
+        numWarnings += 1
+        If(numWarnings >= warnings.length)
+            warningMods = ExpandStringArray(warningMods, 8)
+            warnings = ExpandStringArray(warnings, 8)
+            warningDetails = ExpandStringArray(warningDetails, 8)
+        EndIf
+    ElseIf(level == LevelInfo())
+        noticeMods[numErrors] = name
+        notices[numErrors] = category
+        noticeDetails[numErrors] = detailedError
+        numNotices += 1
+        If(numNotices >= notices.length)
+            noticeMods = ExpandStringArray(noticeMods, 8)
+            notices = ExpandStringArray(notices, 8)
+            noticeDetails = ExpandStringArray(noticeDetails, 8)
+        EndIf
+    EndIf
+EndFunction
+
+string[] Function ExpandStringArray(string[] array, int by)
+    {Expands the specified array by the specified amount.}
+    string[] ret = Utility.CreateStringArray(array.length + by)
+    int i = 0
+    While(i < array.length)
+        ret[i] = array[i]
+        i += 1
+    EndWhile
+    return ret
 EndFunction
