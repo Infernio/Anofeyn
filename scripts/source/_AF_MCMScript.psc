@@ -463,9 +463,9 @@ Function AddToReport(string name, string category, string detailedError, int lev
             errorDetails = ExpandStringArray(errorDetails, 8)
         EndIf
     ElseIf(level == LevelWarning())
-        warningMods[numErrors] = name
-        warnings[numErrors] = category
-        warningDetails[numErrors] = detailedError
+        warningMods[numWarnings] = name
+        warnings[numWarnings] = category
+        warningDetails[numWarnings] = detailedError
         numWarnings += 1
         If(numWarnings >= warnings.length)
             warningMods = ExpandStringArray(warningMods, 8)
@@ -473,9 +473,9 @@ Function AddToReport(string name, string category, string detailedError, int lev
             warningDetails = ExpandStringArray(warningDetails, 8)
         EndIf
     ElseIf(level == LevelInfo())
-        noticeMods[numErrors] = name
-        notices[numErrors] = category
-        noticeDetails[numErrors] = detailedError
+        noticeMods[numNotices] = name
+        notices[numNotices] = category
+        noticeDetails[numNotices] = detailedError
         numNotices += 1
         If(numNotices >= notices.length)
             noticeMods = ExpandStringArray(noticeMods, 8)
