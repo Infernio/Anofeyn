@@ -32,6 +32,18 @@ int silenceSuccessID = 0
 ; The SkyUI ID of the 'silence failure' option.
 int silenceFailID = 0
 
+; Compatibility - ID Variables
+; The SkyUI ID of the Scarcity toggle
+int scarcityID = 0
+; The SkyUI ID of the ASG 'toggle'
+int asgID = 0
+; The SkyUI ID of the ASGM 'toggle'
+int asgmID = 0
+; The SkyUI ID of the Smart Souls 'toggle'
+int smartSoulsID = 0
+; The SkyUI ID of the TSS 'toggle'
+int tssID = 0
+
 ; Constants
 ; The unique (untranslated) name of the 'General' page
 string PAGE_GENERAL = "$AFConfigPageGeneral"
@@ -74,14 +86,40 @@ Event OnPageReset(string page)
             silenceFailID = AddToggleOption("$ASGSilenceFailOption", SettingSilenceFailure.GetValue() == 1)
         ElseIf(page == PAGE_COMPATIBILITY)
             ; Compatibility Page
-            SetCursorFillMode(TOP_TO_BOTTOM)
+            SetCursorFillMode(LEFT_TO_RIGHT)
 
-            AddHeaderOption("Compatible Mods")
+            ; Compatible Mods
+            AddHeaderOption("$AFCompatibleMods")
             AddEmptyOption()
-            AddHeaderOption("Incompatible Mods")
+
+            ; Scarcity
+            scarcityID = AddModToggle("Scarcity", CompatibilityScript.ScarcityLoaded, CompatibilityScript.GetScarcityCompat())
+            AddEmptyOption() ; Remove me for the next mod
+
+            ; One empty line
+            AddEmptyOption()
+            AddEmptyOption()
+
+            ; Incompatible Mods
+            AddHeaderOption("$AFIncompatibleMods")
+            AddEmptyOption()
+
+            ; Soul Gem Fixes
+            asgID = AddModToggle("Acquisitive Soul Gems", CompatibilityScript.ASGLoaded, CompatibilityScript.ASGLoaded)
+            asgmID = AddModToggle("Acquisitive Soul Gems Multithreaded", CompatibilityScript.ASGMLoaded, CompatibilityScript.ASGMLoaded)
+            smartSoulsID = AddModToggle("Smart Souls", CompatibilityScript.SmartSoulsLoaded, CompatibilityScript.SmartSoulsLoaded)
+            tssID = AddModToggle("The Soul Saver", CompatibilityScript.TSSLoaded, CompatibilityScript.TSSLoaded)
         EndIf
     EndIf
 EndEvent
+
+int Function AddModToggle(string modName, bool loaded, bool enabled)
+    If(loaded)
+        return AddToggleOption(modName, enabled)
+    Else
+        return AddToggleOption(modName, false, OPTION_FLAG_DISABLED)
+    EndIf
+EndFunction
 
 Event OnOptionMenuOpen(int option)
     ; General Page
@@ -118,7 +156,13 @@ Event OnOptionSelect(int option)
         bool newValue = SettingSilenceFailure.GetValue() == 0
         SettingSilenceFailure.SetValue(newValue as float)
 		SetToggleOptionValue(option, newValue)
-	EndIf
+
+    ; Compatibility Page
+    ElseIf(option == scarcityID)
+        bool newValue = !CompatibilityScript.GetScarcityCompat()
+        CompatibilityScript.SetScarcityCompat(newValue)
+        SetToggleOptionValue(option, newValue)
+    EndIf
 EndEvent
 
 Event OnOptionMenuAccept(int option, int index)
@@ -142,6 +186,18 @@ Event OnOptionHighlight(int option)
 		SetInfoText("$ASGSilenceSuccessInfo")
 	ElseIf(option == silenceFailID)
 		SetInfoText("$ASGSilenceFailInfo")
+
+    ; Compatibility Page
+    ElseIf(option == scarcityID)
+        SetInfoText("$AFCompatInfoScarcity")
+    ElseIf(option == asgID)
+        SetInfoText("$AFCompatInfoASG")
+    ElseIf(option == asgmID)
+        SetInfoText("$AFCompatInfoASGM")
+    ElseIf(option == smartSoulsID)
+        SetInfoText("$AFCompatInfoSmartSouls")
+    ElseIf(option == tssID)
+        SetInfoText("$AFCompatInfoTSS")
     EndIf
 EndEvent
 
@@ -154,6 +210,6 @@ string Function GetDifficultyDesc(int difficultyVal)
     ElseIf(difficultyVal == 2)
         return "$AFDifficultyHard"
     Else
-        return "Error"
+        return "$AFError"
     EndIf
 EndFunction
