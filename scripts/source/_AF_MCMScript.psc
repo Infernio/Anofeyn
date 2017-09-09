@@ -73,7 +73,7 @@ string[] errorDetails
 int numErrors
 ; The warnings that were recorded by the wizard.
 string[] warnings
-; The warnings corresponding to the errors that were recorded by the wizard.
+; The mods corresponding to the warnings that were recorded by the wizard.
 string[] warningMods
 ; The detailed warnings that were recorded by the wizard.
 string[] warningDetails
@@ -81,7 +81,7 @@ string[] warningDetails
 int numWarnings
 ; The notices that were recorded by the wizard.
 string[] notices
-; The notices corresponding to the errors that were recorded by the wizard.
+; The mods corresponding to the notices that were recorded by the wizard.
 string[] noticeMods
 ; The detailed notices that were recorded by the wizard.
 string[] noticeDetails
@@ -190,13 +190,13 @@ Event OnPageReset(string page)
 
                 ; Errors
                 AddHeaderOption("$AFErrors")
-                AddEmptyOption()
+                AddHeaderOption("$AFClickForDetailedInfo")
 
                 ; Check if we have errors to show
                 If(numErrors <= 0)
                     AddTextOption("$AFNoErrorsFound", "", OPTION_FLAG_DISABLED)
                 Else
-                    noticeClickables = Utility.CreateIntArray(numErrors)
+                    errorClickables = Utility.CreateIntArray(numErrors)
                     While(i < numErrors)
                         AddTextOption(errorMods[i], "")
                         errorClickables[i] = AddTextOption("", errors[i])
@@ -220,7 +220,7 @@ Event OnPageReset(string page)
                     warningClickables = Utility.CreateIntArray(numWarnings)
                     While(i < numWarnings)
                         AddTextOption(warningMods[i], "")
-                        errorClickables[i] = AddTextOption("", warnings[i])
+                        warningClickables[i] = AddTextOption("", warnings[i])
                         i += 1
                     EndWhile
                 EndIf
@@ -241,7 +241,7 @@ Event OnPageReset(string page)
                     noticeClickables = Utility.CreateIntArray(numNotices)
                     While(i < numNotices)
                         AddTextOption(noticeMods[i], "")
-                        errorClickables[i] = AddTextOption("", notices[i])
+                        noticeClickables[i] = AddTextOption("", notices[i])
                         i += 1
                     EndWhile
                 EndIf
@@ -381,7 +381,7 @@ Event OnOptionHighlight(int option)
     Else
         ; Errors
         int i = 0
-        While(i < errorClickables.length)
+        While(i < numErrors)
             If(option == errorClickables[i])
                 SetInfoText("$AFClickErrorInfo")
                 return
@@ -391,7 +391,7 @@ Event OnOptionHighlight(int option)
 
         ; Warnings
         i = 0
-        While(i < warningClickables.length)
+        While(i < numWarnings)
             If(option == warningClickables[i])
                 SetInfoText("$AFClickWarningInfo")
                 return
@@ -401,7 +401,7 @@ Event OnOptionHighlight(int option)
 
         ; Notices
         i = 0
-        While(i < noticeClickables.length)
+        While(i < numNotices)
             If(option == noticeClickables[i])
                 SetInfoText("$AFClickNoticeInfo")
                 return
@@ -451,11 +451,11 @@ Function FinishReport()
     hasReport = true
 EndFunction
 
-Function AddToReport(string name, string category, string detailedError, int level)
+Function AddToReport(string name, string category, string detailedMessage, int level)
     If(level == LevelError())
         errorMods[numErrors] = name
         errors[numErrors] = category
-        errorDetails[numErrors] = detailedError
+        errorDetails[numErrors] = detailedMessage
         numErrors += 1
         If(numErrors >= errors.length)
             errorMods = ExpandStringArray(errorMods, 8)
@@ -465,7 +465,7 @@ Function AddToReport(string name, string category, string detailedError, int lev
     ElseIf(level == LevelWarning())
         warningMods[numWarnings] = name
         warnings[numWarnings] = category
-        warningDetails[numWarnings] = detailedError
+        warningDetails[numWarnings] = detailedMessage
         numWarnings += 1
         If(numWarnings >= warnings.length)
             warningMods = ExpandStringArray(warningMods, 8)
@@ -475,7 +475,7 @@ Function AddToReport(string name, string category, string detailedError, int lev
     ElseIf(level == LevelInfo())
         noticeMods[numNotices] = name
         notices[numNotices] = category
-        noticeDetails[numNotices] = detailedError
+        noticeDetails[numNotices] = detailedMessage
         numNotices += 1
         If(numNotices >= notices.length)
             noticeMods = ExpandStringArray(noticeMods, 8)
