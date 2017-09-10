@@ -16,8 +16,6 @@ Message         Property MessageChecksFinished Auto
 {The message shown to the player when the compatibility checks have finished running.}
 Message         Property MessageAnofeynMissing Auto
 {The warning shown to the player when Anofeyn.esp could not be found.}
-Message         Property MessageVersionMismatch Auto
-{The warning shown to the player when Anofeyn's version does not match this script's version.}
 Message         Property MessageASGOutdated Auto
 {The warning shown to the player when Acquisitive Soul Gems has been detected.}
 Message         Property MessageASGMIncluded Auto
@@ -66,7 +64,7 @@ GlobalVariable  Property SettingCompatScarcity Auto
 {The global variable that controls whether or not Scarcity's globals will be used for loot generation.}
 
 Event OnInit()
-    RegisterForSingleUpdate(1.0)
+    RegisterForSingleUpdate(5.0)
 EndEvent
 
 Event OnUpdate()
@@ -74,7 +72,7 @@ Event OnUpdate()
     If(PlayerRef.Is3DLoaded())
         RunAllChecks(true)
     Else
-        RegisterForSingleUpdate(1.0)
+        RegisterForSingleUpdate(5.0)
     EndIf
 EndEvent
 
@@ -92,8 +90,8 @@ Function RunAllChecks(bool showMessages)
         MessageChecksStarted.Show()
     EndIf
 
-    ; Make sure that anofeyn's version matches and that we're not merged
-    CheckAnofeynVersion()
+    ; Make sure that Anofeyn's esp and version are available
+    CheckAnofeyn()
 
     ; Check if SKSE is available
     CheckSKSE()
@@ -123,24 +121,15 @@ Function RunAllChecks(bool showMessages)
 EndFunction
 
 ; ----- ANOFEYN -----
-Function CheckAnofeynVersion()
-    {Makes sure that Anofeyn's version matches this script's version and that it has NOT been merged into a different esp.}
-    GlobalVariable AnofeynVersion = Game.GetFormFromFile(0x042936, "Anofeyn.esp") as GlobalVariable
-    If(!AnofeynVersion)
+Function CheckAnofeyn()
+    {Makes sure that Anofeyn's esp is available (i.e. has not been merged into a different esp) and that its version number can be found.}
+    If(!Game.GetFormFromFile(0x042936, "Anofeyn.esp") as GlobalVariable)
         ; If the warning property was filled (a newer version might have changed its name), use that
         If(MessageAnofeynMissing)
             MessageAnofeynMissing.Show()
         Else
             ; Otherwise, we'll have to use this method
             Debug.MessageBox("Anofeyn.esp could not be found. This is a SEVERE error - Anofeyn will not able to continue running.\n\nLikely reasons are:\n - An incomplete, corrupt or outdated installation of Anofeyn.\n - Anofeyn has been merged into a different esp file.\n\nPlease make sure that you have the latest version of Anofeyn installed and that it is NOT merged into a different esp before reporting this issue.")
-        EndIf
-    ElseIf(AnofeynVersion.GetValue() != 1) ; NOTE: This number has to be updated every time the _AF_Version global variable is changed
-        ; If the warning property was filled (a newer version might have changed its name), use that
-        If(MessageVersionMismatch)
-            MessageVersionMismatch.Show()
-        Else
-            ; Otherwise, we'll have to use this method
-            Debug.MessageBox("The installed version of Anofeyn does not match the version of Anofeyn's scripts.\n\nThis likely indicates an incomplete or corrupt installation. Please check if a new version is available and then uninstall and reinstall Anofeyn completely.")
         EndIf
     EndIf
 EndFunction
