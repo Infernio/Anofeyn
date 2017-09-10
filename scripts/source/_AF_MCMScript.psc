@@ -195,6 +195,7 @@ Event OnPageReset(string page)
                 ; Check if we have errors to show
                 If(numErrors <= 0)
                     AddTextOption("$AFNoErrorsFound", "", OPTION_FLAG_DISABLED)
+                    AddEmptyOption()
                 Else
                     errorClickables = Utility.CreateIntArray(numErrors)
                     While(i < numErrors)
@@ -215,6 +216,7 @@ Event OnPageReset(string page)
                 ; Check if we have warnings to show
                 If(numWarnings <= 0)
                     AddTextOption("$AFNoWarningsFound", "", OPTION_FLAG_DISABLED)
+                    AddEmptyOption()
                 Else
                     i = 0
                     warningClickables = Utility.CreateIntArray(numWarnings)
