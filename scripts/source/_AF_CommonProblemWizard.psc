@@ -6,8 +6,8 @@ import _AF_Utils
 ; General
 _AF_Compatibility   Property CompatibilityScript Auto
 {The Anofeyn compatibility script.}
-_AF_MCMScript       Property MCMScript Auto
-{The Anofeyn MCM script.}
+_AF_MCM_Reports     Property ReportsScript Auto
+{The Anofeyn MCM Reports page script.}
 
 ; Messages
 Message             Property MessageNeedSKSE Auto
@@ -30,7 +30,7 @@ Function RunWizard()
 
     MessageWizardStarted.Show()
     Debug.Trace("[Anofeyn] Running Problem Wizard. Errors are normal and expected.")
-    MCMScript.ResetReport()
+    ReportsScript.ResetReport()
 
     ; Incompatible Mods - make sure none of those are still installed
     CheckIncompatibleMods()
@@ -38,7 +38,7 @@ Function RunWizard()
     ; Thunderchild - ensures that Soul Tear receives the proper keywords
     CheckThunderchild()
 
-    MCMScript.FinishReport()
+    ReportsScript.FinishReport()
     Debug.Trace("[Anofeyn] Problem Wizard has finished running.")
     MessageWizardFinished.Show()
 EndFunction
@@ -46,27 +46,27 @@ EndFunction
 Function CheckIncompatibleMods()
     ; Smart Souls
     If(CompatibilityScript.SmartSoulsLoaded)
-        MCMScript.AddToReport("Smart Souls", IncompatibleMod(), "Smart Souls is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall Smart Souls.", LevelError())
+        ReportsScript.AddToReport("Smart Souls", IncompatibleMod(), "Smart Souls is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall Smart Souls.", LevelError())
     EndIf
 
     ; ASG
     If(CompatibilityScript.ASGLoaded)
-        MCMScript.AddToReport("Acquisitive Soul Gems", IncompatibleMod(), "ASG is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall ASG.", LevelError())
+        ReportsScript.AddToReport("Acquisitive Soul Gems", IncompatibleMod(), "ASG is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall ASG.", LevelError())
     EndIf
 
     ; ASGM
     If(CompatibilityScript.ASGMLoaded)
-        MCMScript.AddToReport("Acquisitive Soul Gems Multithreaded", IncompatibleMod(), "ASGM is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall ASGM.", LevelError())
+        ReportsScript.AddToReport("Acquisitive Soul Gems Multithreaded", IncompatibleMod(), "ASGM is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall ASGM.", LevelError())
     EndIf
 
     ; TSS
     If(CompatibilityScript.TSSLoaded)
-        MCMScript.AddToReport("The Soul Saver", IncompatibleMod(), "TSS is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall TSS.", LevelError())
+        ReportsScript.AddToReport("The Soul Saver", IncompatibleMod(), "TSS is incompatible with Anofeyn. See the Compatibility page for more information.\n\nSolution: Uninstall TSS.", LevelError())
     EndIf
 EndFunction
 
 Function CheckThunderchild()
     If(!SoulTearEffect.HasKeywordString("TC_ShoutAttack_Keyword"))
-        MCMScript.AddToReport("Thunderchild", LoadOrderConflict(), "Thunderchild conflicts with Anofeyn on DLC01_SoulTearTrapFFActor (XX007CB3).\n\nSolution: Either load Thunderchild after Anofeyn or install the compatibility patch available on Anofeyn's page.", LevelWarning())
+        ReportsScript.AddToReport("Thunderchild", LoadOrderConflict(), "Thunderchild conflicts with Anofeyn on DLC01_SoulTearTrapFFActor (XX007CB3).\n\nSolution: Either load Thunderchild after Anofeyn or install the compatibility patch available on Anofeyn's page.", LevelWarning())
     EndIf
 EndFunction
