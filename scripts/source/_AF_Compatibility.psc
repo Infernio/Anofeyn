@@ -16,14 +16,6 @@ Message         Property MessageChecksFinished Auto
 {The message shown to the player when the compatibility checks have finished running.}
 Message         Property MessageAnofeynMissing Auto
 {The warning shown to the player when Anofeyn.esp could not be found.}
-Message         Property MessageASGOutdated Auto
-{The warning shown to the player when Acquisitive Soul Gems has been detected.}
-Message         Property MessageASGMIncluded Auto
-{The warning shown to the player when Acquisitive Soul Gems Multithreaded has been detected.}
-Message         Property MessageSSIncompatible Auto
-{The warning shown to the player when Smart Souls has been detected.}
-Message         Property MessageTSSIncompatible Auto
-{The warning shown to the player when The Soul Saver has been detected.}
 Message         Property MessageScarcityCompatible Auto
 {The message shown to the player when Scarcity has been detected.}
 
@@ -96,19 +88,6 @@ Function RunAllChecks(bool showMessages)
     ; Check if SKSE is available
     CheckSKSE()
 
-    ; Check for a 'soul gem fix'
-    ; Acquisitive Soul Gems
-    CheckASG()
-
-    ; Acquisitive Soul Gems Multithreaded
-    CheckASGM()
-
-    ; Smart Souls
-    CheckSmartSouls()
-
-    ; The Soul Saver
-    CheckTSS()
-
     ; Check for other mods and enable automatic compatibility
     ; Scarcity
     CheckScarcity(showMessages)
@@ -138,50 +117,6 @@ EndFunction
 Function CheckSKSE()
     {Checks whether or not SKSE is loaded.}
     SKSELoaded = SKSE.GetVersionRelease() > 0
-EndFunction
-
-; ----- ACQUISITIVE SOUL GEMS -----
-Function CheckASG()
-    {Checks whether or not ASG is loaded and shows a warning if it is.}
-    If(Game.GetFormFromFile(0x000D63, "Acquisitive Soul Gems.esp") as Quest)
-        MessageASGOutdated.Show()
-        ASGLoaded = true
-    Else
-        ASGLoaded = false
-    EndIf
-EndFunction
-
-; ----- ACQUISITIVE SOUL GEMS MULTITHREADED -----
-Function CheckASGM()
-    {Checks whether or not ASGM is loaded and shows a warning if it is.}
-    If(Game.GetFormFromFile(0x000D62, "AcquisitiveSoulGemMultithreaded.esp") as Quest)
-        MessageASGMIncluded.Show()
-        ASGMLoaded = true
-    Else
-        ASGMLoaded = false
-    EndIf
-EndFunction
-
-; ----- SMART SOULS -----
-Function CheckSmartSouls()
-    {Checks whether or not Smart Souls is loaded and shows a warning if it is.}
-    If(SKSELoaded && SKSE.GetPluginVersion("Smart Souls") >= 0)
-        MessageSSIncompatible.Show()
-        SmartSoulsLoaded = true
-    Else
-        SmartSoulsLoaded = false
-    EndIf
-EndFunction
-
-; ----- THE SOUL SAVER -----
-Function CheckTSS()
-    {Checks whether or not The Soul Saver is loaded and shows a warning if it is.}
-    If(Game.GetFormFromFile(0x001D97, "ogSoulSaver.esp") as Keyword)
-        MessageTSSIncompatible.Show()
-        TSSLoaded = true
-    Else
-        TSSLoaded = false
-    EndIf
 EndFunction
 
 ; ----- SCARCITY -----
