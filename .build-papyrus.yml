@@ -1,6 +1,6 @@
 compiler: D:\Steam\steamapps\common\Skyrim\Papyrus Compiler\PapyrusCompiler.exe
 flags: TESV_Papyrus_Flags.flg
-output: D:\Steam\steamapps\common\Skyrim\Data\Scripts
+output: D:\Users\Infernio\Desktop\Programming\Skyrim\Anofeyn\scripts
 imports:
     - D:\Users\Infernio\Desktop\Programming\Skyrim\Anofeyn\scripts\source
     - D:\Users\Infernio\Desktop\Programming\Skyrim\MLib\scripts\source

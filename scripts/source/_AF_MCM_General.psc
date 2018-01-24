@@ -21,7 +21,6 @@ string Function GetTitle()
 EndFunction
 
 Event OnPageReset()
-    Debug.MessageBox("OnPageReset() called")
     SetCursorFillMode(LEFT_TO_RIGHT)
 
     ; Settings
