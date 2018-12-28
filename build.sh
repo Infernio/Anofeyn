@@ -13,14 +13,18 @@ C_NC='\033[0m'
 # Variable definitions
 # The path to the Skyrim / Skyrim SE installation to use
 SKYRIM_PATH="G:/steam/steamapps/common/Skyrim Special Edition"
-# The path to the vanilla skyrim, SKSE and SkyUI sources.
+# The path to the vanilla Skyrim, SKSE and SkyUI sources.
 SKYRIM_SOURCES="${SKYRIM_PATH}/Data/Scripts/Source"
 # The path to the papyrus compiler.
-COMPILER_PATH="${SKYRIM_PATH}/Papyrus Compiler/PapyrusCompiler.exe"
+COMPILER="${SKYRIM_PATH}/Papyrus Compiler/PapyrusCompiler.exe"
 # The path to the flags file for Skyrim.
-FLAGS_PATH="${SKYRIM_SOURCES}/TESV_Papyrus_Flags.flg"
+FLAGS="${SKYRIM_SOURCES}/TESV_Papyrus_Flags.flg"
 # The version to release the mod with
 VERSION="0.1.0"
+# The name of the folder in which the mod will be built
+TEMP_FOLDER="temp"
+# The name to use for the release file
+RELEASE_NAME="Anofeyn_${VERSION}.7z"
 
 # Print a nice greeting
 echo -e "Welcome to the ${C_RED}Anofeyn release builder${C_NC}!"
@@ -42,34 +46,34 @@ while [[ release -eq -1 ]]; do
     fi
 done
 
-# Delete and recreate a release folder to make sure we have a fresh setup
+# Delete and recreate a temp folder to make sure we have a fresh setup
 echo ""
-echo -e "${C_RED}==>${C_NC} Creating new release folder..."
+echo -e "${C_RED}==>${C_NC} Creating new temporary build folder..."
 
-rm -rf "release"
-mkdir -p "release/Data"
+rm -rf "${TEMP_FOLDER}"
+mkdir -p "${TEMP_FOLDER}/Data"
 
-# Make sure MLib is here and up to date, then copy it into the release folder
+# Make sure MLib is here and up to date, then copy it into the temp folder
 git submodule update
-cp -r "MLib/scripts" "release/Data"
+cp -r "MLib/scripts" "${TEMP_FOLDER}/Data"
 
-# Copy everything else into the release folder
-cp -r "interface" "release/Data"
-cp -r "meshes" "release/Data"
-cp -r "scripts" "release/Data"
-cp -r "textures" "release/Data"
-cp "Anofeyn.esp" "release"
-cp "Anofeyn.modgroups" "release"
+# Copy everything else into the temp folder
+cp -r "interface" "${TEMP_FOLDER}/Data"
+cp -r "meshes" "${TEMP_FOLDER}/Data"
+cp -r "scripts" "${TEMP_FOLDER}/Data"
+cp -r "textures" "${TEMP_FOLDER}/Data"
+cp "Anofeyn.esp" "${TEMP_FOLDER}"
+cp "Anofeyn.modgroups" "${TEMP_FOLDER}"
 
 # These are only used in release mode
 if [[ $release -eq 1 ]]
 then
-    cp "AnofeynBSAManifest.txt" "release"
-    cp "AnofeynBSAScript.txt" "release"
+    cp "AnofeynBSAManifest.txt" "${TEMP_FOLDER}"
+    cp "AnofeynBSAScript.txt" "${TEMP_FOLDER}"
 fi
 
-# Move into the release folder to make the rest of this procedure simpler
-cd "release"
+# Move into the temp folder to make the rest of this procedure simpler
+cd "${TEMP_FOLDER}"
 
 # Compile all scripts, adding the appropriate flags for each mode
 echo ""
@@ -77,9 +81,9 @@ echo -e "${C_RED}==>${C_NC} Compiling scripts, this may take a while..."
 
 if [[ $release -eq 0 ]]
 then
-    "${COMPILER_PATH}" "Data/scripts/source" -a -q -o="Data/scripts" -i="Data/scripts/source;${SKYRIM_SOURCES}" -f="${FLAGS_PATH}"
+    "${COMPILER}" "Data/scripts/source" -a -q -o="Data/scripts" -i="Data/scripts/source;${SKYRIM_SOURCES}" -f="${FLAGS}"
 else
-    "${COMPILER_PATH}" "Data/scripts/source" -a -q -op -o="Data/scripts" -i="Data/scripts/source;${SKYRIM_SOURCES}" -f="${FLAGS_PATH}"
+    "${COMPILER}" "Data/scripts/source" -a -q -op -o="Data/scripts" -i="Data/scripts/source;${SKYRIM_SOURCES}" -f="${FLAGS}"
 fi
 
 # If we're in development mode, use loose files
@@ -89,7 +93,7 @@ echo -e "${C_RED}==>${C_NC} Packing files into an archive..."
 if [[ $release -eq 0 ]]
 then
     cd "Data"
-    7z a "../Anofeyn_${VERSION}.7z" "../Anofeyn.esp" "../Anofeyn.modgroups" "*"
+    7z a "../${RELEASE_NAME}" "../Anofeyn.esp" "../Anofeyn.modgroups" "*"
 else
     cp "${SKYRIM_PATH}/Tools/Archive/Archive.exe" "Archive.exe" # TODO This is really ugly
     ./Archive.exe "AnofeynBSAScript.txt"
@@ -100,7 +104,7 @@ fi
 if [ -z $1 ]
 then
     echo ""
-    echo -e "${C_RED}==>${C_NC} File built as ${C_GREEN}release/Anofeyn_${VERSION}.7z${C_NC}!"
+    echo -e "${C_RED}==>${C_NC} File built as ${C_GREEN}${TEMP_FOLDER}/${RELEASE_NAME}${C_NC}!"
     echo "Press any key to continue"
     read -s -n 1
 fi

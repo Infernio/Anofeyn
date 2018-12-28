@@ -1,5 +1,5 @@
 # Compiled scripts
 *.pex
 
-# Temporary release folder
-/release/
+# Temporary build folder
+/temp/
