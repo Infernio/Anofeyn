@@ -10,8 +10,8 @@ SKYRIM_PATH="G:/steam/steamapps/common/Skyrim Special Edition"
 VERSION="0.1.0"
 
 # Delete and recreate a release folder to make sure we have a fresh setup
-rm -rf release
-mkdir -p release/Data
+rm -rf "release"
+mkdir -p "release/Data"
 
 # Copy MLib over
 cp -r "../MLib/scripts" "release/Data"

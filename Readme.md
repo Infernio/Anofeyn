@@ -10,7 +10,10 @@ and subfolders - please see those folders / files for their respective licenses.
  - [meshes/Issgard](meshes/Issgard)
  - [textures/Issgard](textures/Issgard)
 
-Boilerplate Notice:
+To comply with the license of those files, full credit for the meshes and textures specified above is given to [Prometheus](https://www.nexusmods.com/skyrimspecialedition/users/88348) and their mod project [Issgard](https://forums.nexusmods.com/index.php?/topic/617901-issgard/).
+
+
+#### Boilerplate Notice:
 
     Copyright 2017 Infernio
 
