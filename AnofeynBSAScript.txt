@@ -1,4 +1,4 @@
-Log: release\AnofeynBSALog.txt
+Log: ./AnofeynBSALog.txt
 New Archive
 Check: Meshes
 Check: Textures
@@ -8,4 +8,4 @@ Check: Retain Directory Names
 Check: Retain File Names
 Set File Group Root: Data\
 Add File Group: ./AnofeynBSAManifest.txt
-Save Archive: ./release/Anofeyn.bsa
+Save Archive: ./Anofeyn.bsa

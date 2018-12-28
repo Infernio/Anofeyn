@@ -11,26 +11,28 @@ VERSION="0.1.0"
 
 # Delete and recreate a release folder to make sure we have a fresh setup
 rm -rf release
-mkdir release
+mkdir -p release/Data
 
 # Copy MLib over
-cp -r "../MLib/scripts" "release"
+cp -r "../MLib/scripts" "release/Data"
 
 # Copy everything into the release folder
+cp -r "interface" "release/Data"
+cp -r "meshes" "release/Data"
+cp -r "scripts" "release/Data"
+cp -r "textures" "release/Data"
 cp "Anofeyn.esp" "release"
 cp "Anofeyn.modgroups" "release"
-cp -r "interface" "release"
-cp -r "meshes" "release"
-cp -r "scripts" "release"
-cp -r "textures" "release"
+cp "AnofeynBSAManifest.txt" "release"
+cp "AnofeynBSAScript.txt" "release"
 
 # Move into the release folder to make the rest of this procedure simpler
 cd "release"
 
 # Compile all scripts and pack everything into an archive
 # TODO Copying Archive.exe over is really ugly
-"${SKYRIM_PATH}/Papyrus Compiler/PapyrusCompiler.exe" "scripts/source" -a -op -o="scripts" -i="scripts/source;${SKYRIM_PATH}/Data/Scripts/Source" -f="${SKYRIM_PATH}/Papyrus Compiler/TESV_Papyrus_Flags.flg"
 cp "${SKYRIM_PATH}/Tools/Archive/Archive.exe" "Archive.exe"
+"${SKYRIM_PATH}/Papyrus Compiler/PapyrusCompiler.exe" "Data/scripts/source" -a -op -o="Data/scripts" -i="Data/scripts/source;${SKYRIM_PATH}/Data/Scripts/Source" -f="${SKYRIM_PATH}/Papyrus Compiler/TESV_Papyrus_Flags.flg"
 ./Archive.exe "AnofeynBSAScript.txt"
 
 # Bundle everything into a 7z archive
