@@ -96,7 +96,7 @@ EndFunction
 ; ----- ANOFEYN -----
 Function CheckAnofeyn()
     {Makes sure that Anofeyn's esp is available (i.e. has not been merged into a different esp) and that its version number can be found.}
-    If(!Game.GetFormFromFile(0x042936, "Anofeyn.esp") as GlobalVariable)
+    If(!Game.GetFormFromFile(0x000812, "Anofeyn.esp") as GlobalVariable)
         ; If the warning property was filled (a newer version might have changed its name), use that
         If(MessageAnofeynMissing)
             MessageAnofeynMissing.Show()
