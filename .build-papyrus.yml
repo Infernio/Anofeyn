@@ -1,9 +1,9 @@
-compiler: D:\Steam\steamapps\common\Skyrim\Papyrus Compiler\PapyrusCompiler.exe
+compiler: G:\Steam\steamapps\common\Skyrim\Papyrus Compiler\PapyrusCompiler.exe
 flags: TESV_Papyrus_Flags.flg
-output: D:\Users\Infernio\Desktop\Programming\Skyrim\Anofeyn\scripts
+output: C:\Users\Infernio\Desktop\Programming\Skyrim\Anofeyn\scripts
 imports:
-    - D:\Users\Infernio\Desktop\Programming\Skyrim\Anofeyn\scripts\source
-    - D:\Users\Infernio\Desktop\Programming\Skyrim\MLib\scripts\source
-    - D:\Steam\steamapps\common\Skyrim\Data\Scripts\Source
-    - D:\Steam\steamapps\common\Skyrim\Data\Scripts
+    - C:\Users\Infernio\Desktop\Programming\Skyrim\Anofeyn\scripts\source
+    - C:\Users\Infernio\Desktop\Programming\Skyrim\MLib\scripts\source
+    - G:\Steam\steamapps\common\Skyrim\Data\Scripts\Source
+    - G:\Steam\steamapps\common\Skyrim\Data\Scripts
 optimize: true
