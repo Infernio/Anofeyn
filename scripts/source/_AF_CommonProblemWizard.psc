@@ -31,6 +31,12 @@ Function RunWizard()
     ; Incompatible Mods - make sure none of those are still installed
     CheckIncompatibleMods()
 
+    ; Compatibility Failures - check if the compatibility script failed to find installed mods
+    CheckCompatibilityFailures()
+
+    ; Place a note if Scarcity's chances are out of date
+    CheckScarcity()
+
     ReportsScript.FinishReport()
     Debug.Trace("[Anofeyn] Problem Wizard has finished running.")
     MessageWizardFinished.Show()
@@ -38,4 +44,17 @@ EndFunction
 
 Function CheckIncompatibleMods()
     ; Add any incompatible mods here
+EndFunction
+
+Function CheckCompatibilityFailures()
+    If(Game.IsPluginInstalled("Scarcity SE - Less Loot Mod.esp") && !CompatibilityScript.ScarcityLoaded)
+        ; Scarcity is loaded but the compatibility script couldn't find its loot chances
+        ReportsScript.AddToReport("Scarcity: Compatibility Failed", CompatibilityFailure(), "Scarcity is installed, but its loot chances could not be found.\nThis may happen if an update or ESL compression changed Scarcity's Form IDs.\nPlease revert to a known working version (1.1).", LevelWarning())
+    EndIf
+EndFunction
+
+Function CheckScarcity()
+    If(CompatibilityScript.ScarcityLoaded && CompatibilityScript.ScarcityCompatEnabled() && CompatibilityScript.ScarcityMismatch())
+        ReportsScript.AddToReport("Scarcity: Mismatched Loot Chances", CompatibilityMisc(), "Scarcity is installed and compatibility with it is enabled, but the chances no longer seem to be in sync.\nThis can happen if you change Scarcity loot chances mid-playthrough.\nPlease untick and retick the Scarcity checkbox on the Compatibility page.", LevelInfo())
+    EndIf
 EndFunction

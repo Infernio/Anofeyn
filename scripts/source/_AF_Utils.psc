@@ -1,27 +1,37 @@
 ScriptName _AF_Utils Hidden
 {Utility functions used throughout the mod.}
 
-string Function LoadOrderConflict() global
+String Function LoadOrderConflict() Global
     {The load order conflict category.}
     return "$AFLoadOrderConflict"
 EndFunction
 
-string Function IncompatibleMod() global
+String Function IncompatibleMod() Global
     {The incompatible mod category.}
     return "$AFIncompatibleMod"
 EndFunction
 
-int Function LevelInfo() global
+String Function CompatibilityFailure() Global
+    {The compatbility failed mod category.}
+    return "$AFCompatFailure"
+EndFunction
+
+String Function CompatibilityMisc() Global
+    {The miscellaneous compatibility category.}
+    return "$AFCompatMisc"
+EndFunction
+
+Int Function LevelInfo() Global
     {The 'info' severity level.}
     return 0
 EndFunction
 
-int Function LevelWarning() global
+Int Function LevelWarning() Global
     {The 'warning' severity level.}
     return 1
 EndFunction
 
-int Function LevelError() global
+Int Function LevelError() Global
     {The 'error' severity level.}
     return 2
 EndFunction

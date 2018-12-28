@@ -6,7 +6,7 @@ Actor           Property PlayerRef Auto
 {The player reference.}
 
 ; Internals
-bool            Property IsDone = false Auto Hidden
+Bool            Property IsDone = false Auto Hidden
 {Whether or not the compatibility checks have run.}
 
 ; Messages
@@ -18,6 +18,8 @@ Message         Property MessageAnofeynMissing Auto
 {The warning shown to the player when Anofeyn.esp could not be found.}
 Message         Property MessageScarcityCompatible Auto
 {The message shown to the player when Scarcity has been detected.}
+Message         Property MessageScarcityUninstalled Auto
+{The message shown to the player when Scarcity has been uninstalled.}
 
 ; Loot Chances
 GlobalVariable  Property ChanceNone0 Auto
@@ -38,17 +40,9 @@ GlobalVariable  Property ChanceNone95 Auto
 {The global variable that stores the 95% chance for a leveled item to resolve to nothing.}
 
 ; Mod Information
-bool            Property SKSELoaded = false Auto Hidden
+Bool            Property SKSELoaded = false Auto Hidden
 {Whether or not SKSE has been detected.}
-bool            Property ASGLoaded = false Auto Hidden
-{Whether or not ASG has been detected.}
-bool            Property ASGMLoaded = false Auto Hidden
-{Whether or not ASGM has been detected.}
-bool            Property SmartSoulsLoaded = false Auto Hidden
-{Whether or not Smart Souls has been detected.}
-bool            Property TSSLoaded = false Auto Hidden
-{Whether or not The Soul Saver has been detected.}
-bool            Property ScarcityLoaded = false Auto Hidden
+Bool            Property ScarcityLoaded = false Auto Hidden
 {Whether or not Scarcity has been detected.}
 
 ; Compatibility Settings
@@ -74,7 +68,7 @@ Event OnPlayerLoadGame()
     Debug.Trace("[Anofeyn] Game load checks completed")
 EndEvent
 
-Function RunAllChecks(bool showMessages)
+Function RunAllChecks(Bool showMessages)
     {Runs all compatibility checks and logs appropriately.}
     IsDone = false
     Debug.Trace("[Anofeyn] Starting compatibility checks - errors are normal and expected.")
@@ -120,31 +114,59 @@ Function CheckSKSE()
 EndFunction
 
 ; ----- SCARCITY -----
-Function CheckScarcity(bool showMessages)
+Function CheckScarcity(Bool showMessages)
     {Check whether or not Scarcity is loaded and, if so, fills the relevant global variables with its values.}
-    GlobalVariable chance0 = Game.GetFormFromFile(0x000D64, "Scarcity - Less Loot Mod.esp") as GlobalVariable
-    If(chance0 && !ScarcityLoaded)
+    Bool scarcityFound = FindScarcity()
+    If(scarcityFound && !ScarcityLoaded)
         ; Scarcity or Anofeyn has just been installed
         If(showMessages)
             MessageScarcityCompatible.Show()
         EndIf
-        If(SettingCompatScarcity.GetValue() == 1)
+        If(ScarcityCompatEnabled())
             ApplyScarcityValues()
         EndIf
         ScarcityLoaded = true
-    ElseIf(!chance0 && ScarcityLoaded)
+    ElseIf(!scarcityFound && ScarcityLoaded)
         ; Scarcity has been uninstalled, undo its changes
-        UndoScarcityValues()
+        If(showMessages)
+            MessageScarcityUninstalled.Show()
+        EndIf
+        If(ScarcityCompatEnabled())
+            UndoScarcityValues()
+        EndIf
         ScarcityLoaded = false
     EndIf
 EndFunction
 
-bool Function GetScarcityCompat()
+Bool Function FindScarcity()
+    {Makes sure that all required globals from Scarcity are available.}
+    If(!Game.GetFormFromFile(0x000D64, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    ElseIf(!Game.GetFormFromFile(0x000D68, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    ElseIf(!Game.GetFormFromFile(0x000D6A, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    ElseIf(!Game.GetFormFromFile(0x000D63, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    ElseIf(!Game.GetFormFromFile(0x000D62, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    ElseIf(!Game.GetFormFromFile(0x000D66, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    ElseIf(!Game.GetFormFromFile(0x000D65, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    ElseIf(!Game.GetFormFromFile(0x0012D6, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable)
+        return false
+    Else
+        return true
+    EndIf
+EndFunction
+
+Bool Function ScarcityCompatEnabled()
     {Gets whether Scarcity compatibility is enabled or not.}
     return SettingCompatScarcity.GetValue() == 1.0
 EndFunction
 
-Function SetScarcityCompat(bool enableCompat)
+Function SetScarcityCompat(Bool enableCompat)
     {Changes whether Scarcity compatibility is enabled or not.}
     If(enableCompat)
         SettingCompatScarcity.SetValue(1.0)
@@ -157,14 +179,14 @@ EndFunction
 
 Function ApplyScarcityValues()
     {Applies Scarcity's rarity values to Anofeyn's globals.}
-    ChanceNone0.SetValue((Game.GetFormFromFile(0x000D64, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
-    ChanceNone10.SetValue((Game.GetFormFromFile(0x000D68, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
-    ChanceNone25.SetValue((Game.GetFormFromFile(0x000D6A, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
-    ChanceNone50.SetValue((Game.GetFormFromFile(0x000D63, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
-    ChanceNone75.SetValue((Game.GetFormFromFile(0x000D62, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
-    ChanceNone80.SetValue((Game.GetFormFromFile(0x000D66, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
-    ChanceNone90.SetValue((Game.GetFormFromFile(0x000D65, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
-    ChanceNone95.SetValue((Game.GetFormFromFile(0x0012D6, "Scarcity - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone0.SetValue((Game.GetFormFromFile(0x000D64, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone10.SetValue((Game.GetFormFromFile(0x000D68, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone25.SetValue((Game.GetFormFromFile(0x000D6A, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone50.SetValue((Game.GetFormFromFile(0x000D63, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone75.SetValue((Game.GetFormFromFile(0x000D62, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone80.SetValue((Game.GetFormFromFile(0x000D66, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone90.SetValue((Game.GetFormFromFile(0x000D65, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+    ChanceNone95.SetValue((Game.GetFormFromFile(0x0012D6, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
 EndFunction
 
 Function UndoScarcityValues()
@@ -177,4 +199,27 @@ Function UndoScarcityValues()
     ChanceNone80.SetValue(80.0)
     ChanceNone90.SetValue(90.0)
     ChanceNone95.SetValue(95.0)
+EndFunction
+
+Bool Function ScarcityMismatch()
+    {Checks if there is a mismatch between Scarcity's and Anofeyn's globals.}
+    If(ChanceNone0.GetValue() != (Game.GetFormFromFile(0x000D64, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    ElseIf(ChanceNone10.GetValue() != (Game.GetFormFromFile(0x000D68, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    ElseIf(ChanceNone25.GetValue() != (Game.GetFormFromFile(0x000D6A, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    ElseIf(ChanceNone50.GetValue() != (Game.GetFormFromFile(0x000D63, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    ElseIf(ChanceNone75.GetValue() != (Game.GetFormFromFile(0x000D62, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    ElseIf(ChanceNone80.GetValue() != (Game.GetFormFromFile(0x000D66, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    ElseIf(ChanceNone90.GetValue() != (Game.GetFormFromFile(0x000D65, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    ElseIf(ChanceNone95.GetValue() != (Game.GetFormFromFile(0x0012D6, "Scarcity SE - Less Loot Mod.esp") as GlobalVariable).GetValue())
+        return true
+    Else
+        return false
+    EndIf
 EndFunction

@@ -106,7 +106,7 @@ Function HandleResurrection(Actor caster, Actor target, int choice)
 
     ; Add in Conjuration skill
     ; High Conjuration skill makes it easier to bridge the gap
-    successVar -= caster.GetActorValue("Conjuration") / 10
+    successVar -= caster.GetActorValue("Conjuration") / 5
 
     ; Add in the soul gem factor
     ; Better soul gems make it easier to resurrect
@@ -148,27 +148,24 @@ int Function GetSoulGemFactor(int choice, bool isPlayer)
     ElseIf(!isPlayer)
         ; Assume enemies always use Greater Soul Gems
         return 10
-    ElseIf(choice == 1)
-        ; Black - Massive Bonus
-        return 25
-    ElseIf(choice == 2)
-        ; Grand - Significant Bonus
+    ElseIf(choice == 1 || choice == 2)
+        ; Grand or Black - Significant Bonus
         return 20
     ElseIf(choice == 3)
         ; Greater - Sizable Bonus
         return 10
     ElseIf(choice == 4)
-        ; Common - No Bonus
-        return 0
+        ; Common - Small Bonus
+        return 5
     ElseIf(choice == 5)
-        ; Lesser - Slight Debuff
-        return -5
+        ; Lesser - No Bonus
+        return 0
     ElseIf(choice == 6)
-        ; Petty - Sizable Debuff
-        return -10
+        ; Petty - Small Debuff
+        return -5
     ElseIf(choice == 7)
-        ; None - Significant Debuff
-        return -20
+        ; None - Sizable Debuff
+        return -10
     Else
         ; ???
         Debug.Trace("[Anofeyn] Unknown soul gem choice")
