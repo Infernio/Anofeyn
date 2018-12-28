@@ -13,10 +13,11 @@ VERSION="0.1.0"
 rm -rf "release"
 mkdir -p "release/Data"
 
-# Copy MLib over
-cp -r "../MLib/scripts" "release/Data"
+# Make sure MLib is here and up to date, then copy it into the release folder
+git submodule update
+cp -r "MLib/scripts" "release/Data"
 
-# Copy everything into the release folder
+# Copy everything else into the release folder
 cp -r "interface" "release/Data"
 cp -r "meshes" "release/Data"
 cp -r "scripts" "release/Data"

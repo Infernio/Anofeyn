@@ -38,6 +38,9 @@ scripts\source\_AF_ReanimateEffect.psc
 scripts\source\_AF_RecentlyDeceasedCleanup.psc
 scripts\source\_AF_RecentlyDeceasedDebuff.psc
 scripts\source\_AF_Utils.psc
+scripts\source\MLib_Config.psc
+scripts\source\MLib_Page.psc
+scripts\source\MLib_Utils.psc
 scripts\_AF_ActorDeathScript.pex
 scripts\_AF_CommonProblemWizard.pex
 scripts\_AF_Compatibility.pex
@@ -50,5 +53,8 @@ scripts\_AF_ReanimateEffect.pex
 scripts\_AF_RecentlyDeceasedCleanup.pex
 scripts\_AF_RecentlyDeceasedDebuff.pex
 scripts\_AF_Utils.pex
+scripts\MLib_Config.pex
+scripts\MLib_Page.pex
+scripts\MLib_Utils.pex
 textures\Issgard\Actors\Beastskeletons\Isgard_Beastskeletons.dds
 textures\Issgard\Actors\Beastskeletons\Isgard_Beastskeletons_n.dds
