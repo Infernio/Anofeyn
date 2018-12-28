@@ -6,6 +6,12 @@
 # Variable definitions
 # The path to the Skyrim / Skyrim SE installation to use
 SKYRIM_PATH="G:/steam/steamapps/common/Skyrim Special Edition"
+# The path to the vanilla skyrim, SKSE and SkyUI sources.
+SKYRIM_SOURCES="${SKYRIM_PATH}/Data/Scripts/Source"
+# The path to the papyrus compiler.
+COMPILER_PATH="${SKYRIM_PATH}/Papyrus Compiler/PapyrusCompiler.exe"
+# The path to the flags file for Skyrim.
+FLAGS_PATH="${SKYRIM_SOURCES}/TESV_Papyrus_Flags.flg"
 # The version to release the mod with
 VERSION="0.1.0"
 
@@ -33,7 +39,7 @@ cd "release"
 # Compile all scripts and pack everything into an archive
 # TODO Copying Archive.exe over is really ugly
 cp "${SKYRIM_PATH}/Tools/Archive/Archive.exe" "Archive.exe"
-"${SKYRIM_PATH}/Papyrus Compiler/PapyrusCompiler.exe" "Data/scripts/source" -a -op -o="Data/scripts" -i="Data/scripts/source;${SKYRIM_PATH}/Data/Scripts/Source" -f="${SKYRIM_PATH}/Papyrus Compiler/TESV_Papyrus_Flags.flg"
+"${COMPILER_PATH}" "Data/scripts/source" -a -op -o="Data/scripts" -i="Data/scripts/source;${SKYRIM_SOURCES}" -f="${FLAGS_PATH}"
 ./Archive.exe "AnofeynBSAScript.txt"
 
 # Bundle everything into a 7z archive
