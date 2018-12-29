@@ -54,7 +54,7 @@ rm -rf "${TEMP_FOLDER}"
 mkdir -p "${TEMP_FOLDER}/Data"
 
 # Make sure MLib is here and up to date, then copy it into the temp folder
-git submodule update
+git submodule update --init
 cp -r "MLib/scripts" "${TEMP_FOLDER}/Data"
 
 # Copy everything else into the temp folder
@@ -97,7 +97,7 @@ then
 else
     cp "${SKYRIM_PATH}/Tools/Archive/Archive.exe" "Archive.exe" # TODO This is really ugly
     ./Archive.exe "AnofeynBSAScript.txt"
-    7z a "Anofeyn_${VERSION}.7z" "Anofeyn.bsa" "Anofeyn.esp" "Anofeyn.modgroups"
+    7z a "${RELEASE_NAME}" "Anofeyn.bsa" "Anofeyn.esp" "Anofeyn.modgroups"
 fi
 
 # If we were launched in interactive mode (no parameter), wait for confirmation
